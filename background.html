@@ -1,2 +1,29 @@
 <html>
+	<script type="text/javascript" src="javascript/player-handler.js"></script>
+	<script>
+		chrome.tabs.onUpdated.addListener(function(tabId,changeInfo,tab) {
+			// chrome.tabs.executeScript(tabId, { file: '/javascript/ymp-listener.js',
+			// 	allFrames: true 
+			// });
+			var code = "var script = document.createElement('script');\
+								script.type = 'text/javascript';\
+								script.src = '"+chrome.extension.getURL('/javascript/ymp-listener.js')+"';\
+								document.head.appendChild(script);";
+
+			chrome.tabs.executeScript(tabId, { code: code,
+				allFrames: false 
+			});
+		});
+		var PlayerHandler = new PlayerHandler();
+		PlayerHandler.init();
+
+    function notify(title, message, timeout) {
+       var not = webkitNotifications.createNotification(
+         'icon.png', title, message);
+         not.show();
+         setTimeout(function(){
+           not.cancel();
+         }, ''+timeout);
+    }
+	</script>
 </html>
