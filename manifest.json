@@ -7,6 +7,13 @@
     "default_icon": "img/ico.gif",
     "popup": "popup.html"
   },
+  "content_scripts": [
+    {
+      "matches":["http://*/*"],
+      "js":["javascript/messenger.js"],
+      "run_at": "document_idle"
+    }
+  ],
   "permissions": [
     "notifications",
     "tabs",

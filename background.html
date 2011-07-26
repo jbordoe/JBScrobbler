@@ -1,21 +1,70 @@
 <html>
 	<script type="text/javascript" src="javascript/player-handler.js"></script>
 	<script>
+		/** how frequently the player status is checked, in milliseconds */
+		var interval = 500; 
+		var scrobbled = false;
+		playerStatus = {
+			"playState":0, //0 = stopped, 1 = paused, 2 = playing
+			"elapsed":0,	//How long the tracks been playing
+			"started":0,	//when the track began playing (unix timestamp)
+			"url":"",	//url of the MP3 being played
+			"track":{		
+				"artist":"",
+				"title":"",
+				"duration":0
+			}
+		}; 	
+
 		chrome.tabs.onUpdated.addListener(function(tabId,changeInfo,tab) {
-			// chrome.tabs.executeScript(tabId, { file: '/javascript/ymp-listener.js',
-			// 	allFrames: true 
-			// });
+			//inject the yahoo media player listener into the page
 			var code = "var script = document.createElement('script');\
 								script.type = 'text/javascript';\
 								script.src = '"+chrome.extension.getURL('/javascript/ymp-listener.js')+"';\
 								document.head.appendChild(script);";
-
 			chrome.tabs.executeScript(tabId, { code: code,
 				allFrames: false 
 			});
 		});
-		var PlayerHandler = new PlayerHandler();
-		PlayerHandler.init();
+
+		//listen for updates in the player's status
+		chrome.extension.onConnect.addListener(function(port) {
+			port.onMessage.addListener(function(msg) {
+		    var updatedStatus = JSON.parse(msg);
+		    update(updatedStatus);
+		  });
+		});
+
+		setInterval(function() {
+				checkTrack()},500);
+
+		function update(status) {
+			if(playerStatus.url != status.url){ //change of track
+				notify('Now playing',status.track.artist+' "'+status.track.title+'"',5000);
+			} 
+			playerStatus = status; //update player status;
+		}
+
+		/**
+		 * update and check how long the current track has been playing for, scrobbling if ready
+		 */
+		function checkTrack() {
+			if(playerStatus.playState == 2) {
+				playerStatus.elapsed = playerStatus.elapsed + interval;
+				if(!scrobbled) {
+					if(playerStatus.elapsed > 240000 
+						|| (playerStatus.track.duration > 30000 && playerStatus.elapsed > playerStatus.track.duration/2)) {
+							scrobble();
+					}
+				}
+			}
+		}
+
+		function scrobble() {
+			scrobbled = true;
+			//TODO scrobbling!
+			notify('Scrobbled!','Scrobbled track: '+playerStatus.track.artist+' "'+playerStatus.track.title+'"',5000);
+		}
 
     function notify(title, message, timeout) {
        var not = webkitNotifications.createNotification(

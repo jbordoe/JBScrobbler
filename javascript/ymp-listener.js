@@ -1,7 +1,7 @@
 /**
  * @constructor
  */
-YMPListener = function(){
+ YMPListener = function(){
 	this.playerStatus = {
 		"playState":0, //0 = stopped, 1 = paused, 2 = playing
 		"elapsed":0,	//How long the tracks been playing
@@ -9,7 +9,7 @@ YMPListener = function(){
 		"url":"",	//url of the MP3 being played
 		"track":{		
 			"artist":"",
-			"track":"",
+			"title":"",
 			"duration":0
 		} 	
 	}
@@ -17,16 +17,9 @@ YMPListener = function(){
 }
 
 YMPListener.prototype.init = function(){
-	var eventDiv = document.createElement('div');
-	eventDiv.id = 'scrobblerEventDiv';
-	document.body.appendChild(eventDiv);
-
 	this.changeEvent = document.createEvent('Event');
 	this.changeEvent.initEvent('changeEvent', true, true);
-
-
 };
-
 
 YMPListener.prototype.fireCustomEvent = function(data) {
   eventDiv = document.getElementById('scrobblerEventDiv');
@@ -34,11 +27,10 @@ YMPListener.prototype.fireCustomEvent = function(data) {
   eventDiv.dispatchEvent(this.changeEvent);
 }
 
-
 YMPListener.prototype.getTrackInfo = function() {
 	var artist = document.getElementById('ymp-meta-artist-title').innerHTML;
 	var track;
-	var duration = this.getDuration()/1000;
+	var duration = this.getDuration();
 	if (!artist) {
 		var arr = document.getElementById('ymp-meta-track-title').innerHTML.split(":",2);
 		artist = arr[0];
@@ -48,7 +40,7 @@ YMPListener.prototype.getTrackInfo = function() {
 	}
 	return {
 		"artist":artist,
-		"track":track,
+		"title":track,
 		"duration":duration		
 	};
 }
@@ -93,7 +85,11 @@ YMPListener.prototype.updateTrack = function() {
 YMPListener.prototype.checkStatus = function() {
 	if(!this.scrobbled){
 		if(this.playerStatus.playState == 2){ //currently playing, increment elapsed playtime
-			this.playerStatus.elapsed = this.playerStatus.elapsed + 500;
+			this.playerStatus.elapsed = this.playerStatus.elapsed + interval;
+			if(this.playerStatus.track.duration < 1){
+				this.playerStatus.track.duration = this.getDuration();
+			}
+
 		}		
 		//scrobble when we're halfway thru track or 4 minutes into it, whichever comes sooner
 		if(this.playerStatus.track.duration > 30000 && (this.playerStatus.elapsed > this.playerStatus.track.duration/2 || this.playerStatus.elapsed > 240000)){
@@ -112,10 +108,14 @@ YMPListener.prototype.checkStatus = function() {
 }
 
 //main
+/** how frequently the player status is checked, in milliseconds */
+var interval = 500; 
+
+
 if(!ympListener){
 	var ympListener = new YMPListener();
 	ympListener.init();
 	setInterval(function(){
 		ympListener.checkStatus(); //listen for key changes in player status
-},500);
+},interval);
 }	
