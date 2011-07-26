@@ -1,14 +1,17 @@
 <html>
-	<body width="200" height="200" onload="init()">
+	<head>
+	<link rel=stylesheet type="text/css" href="/css/popup.css">
+	</head>
+	<body onload="init()">
 		<div id = "info"></div>
-		<div id="progress-bar">
-			<div id="progress-component"></div>
+		<div id="progress_bar">
+			<div id="progress_component"></div>
 			<div id="elapsed"></div>
 		</div>
 
 		<div id = "options"></div>	
 	</body>
-	<script type ="text/javascript">
+	<script type ="text/javascript">		
 		playerStatus = {
 			"playState":0, //0 = stopped, 1 = paused, 2 = playing
 			"elapsed":0,	//How long the tracks been playing
@@ -20,19 +23,43 @@
 				"duration":0
 			}
 		};
+		var scrobbleTime = 240000;
+		var canScrobble = false;
 
+		//see if track is playing, update elapsed if so
+		setInterval(function() {checkTrack()},500);
+
+		/**
+		 * update and check how long the current track has been playing for, scrobbling if ready
+		 */
+		function checkTrack() {
+			if(playerStatus.playState == 2) {
+				playerStatus.elapsed = playerStatus.elapsed + 500;
+				var remaining = scrobbleTime - playerStatus.elapsed;
+				document.getElementById('elapsed').innerHTML = toMinutes(remaining);
+				document.getElementById('progress_component').style.width = 148*((scrobbleTime-remaining)/scrobbleTime);
+			}
+		}
 		/**
 		 * runs whenever popup is opened, fetches player status data from background page
 		 */
 		function init(){
 			chrome.extension.sendRequest({type: "status"}, function(status) {
 					playerStatus = JSON.parse(status);
+					if(playerStatus.track.duration > 0 & playerStatus.track.duration < 30000){
+						canScrobble = false;
+					} else if(playerStatus.track.duration > 30000) {
+						scrobbleTime = playerStatus.track.duration/2;
+						canScrobble = true;
+					}
 					generate();
 			});
 
 		}
 
-		
+
+
+
 		function generate(){
 			if(playerStatus.url == ""){
 				document.getElementById('info').innerHTML = 
@@ -40,8 +67,22 @@
 			} else {
 				document.getElementById('info').innerHTML = 
 				'Now Playing - '+playerStatus.track.artist+': "'+playerStatus.track.title+'"';
-				document.getElementById('elapsed').innerHTML = playerStatus.elapsed;
+				var remaining = scrobbleTime - playerStatus.elapsed;
+				document.getElementById('elapsed').innerHTML = toMinutes(remaining);
+				document.getElementById('progress_component').style.width = 148*((scrobbleTime-remaining)/scrobbleTime);
 			}
+		}
+
+		/**
+		 *  convert milliseconds to minutes and seconds
+		 */ 
+		function toMinutes(millis){
+			var minutes = Math.floor(millis / (1000 * 60) );
+			var seconds = Math.floor((millis / 1000) - minutes*60);
+			if(seconds < 10){
+				seconds = '0'+seconds;
+			}
+			return minutes+':'+seconds;
 		}
 	</script>	
 </html>

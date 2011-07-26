@@ -1,0 +1,38 @@
+body {
+	color: #333;
+	background-color: #f3f3f3;
+	font-family: "Helvetica";
+	font-size: 12pt;
+}
+
+#progress_bar {
+	height: 20px;
+	width: 150px;
+	margin-left: auto ;
+ 	margin-right: auto ;
+ 	background-color: #f30000;
+ 	border: 1px solid #262626;
+}
+
+#progress_component {
+	position: relative;
+	height: 18px;
+	width: 0px; /* max = 148 */
+	top: 1px;
+	left: 0px;
+	margin-left: auto ;
+ 	margin-right: auto ;
+ 	background-color: #f36666;
+ 	float: left;
+}
+
+
+#elapsed {
+	position: relative;
+	color: #300;
+	float: right;
+	font-size: 11pt;
+	z-index: 10;
+	margin-bottom: auto ;
+	margin-top: auto ;
+}
