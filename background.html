@@ -35,9 +35,19 @@
 		  });
 		});
 
-		setInterval(function() {
-				checkTrack()},500);
+		//listen for requests from popup
+		chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
+      if(request.type == "status") {
+          sendResponse(JSON.stringify(playerStatus));
+      }
+    });
 
+    //see if track is playing, update elapsed if so
+		setInterval(function() {checkTrack()},500);
+
+		/**
+			* update player status 
+			*/
 		function update(status) {
 			if(playerStatus.url != status.url){ //change of track
 				notify('Now playing',status.track.artist+' "'+status.track.title+'"',5000);

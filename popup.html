@@ -1,14 +1,47 @@
 <html>
-	<body width="400" height="300">
-	Jesse's Scrobbler
-	<h3 id="scrobbler-title"></h3>
-	<div id = "info">No track is currently being played</div>
-	<div id="progress-bar">
-		<div id="progress-component"></div>
-		<div id="progress-time"></div>
-	</div>
-	</body>
-<script type ="text/javascript">
+	<body width="200" height="200" onload="init()">
+		<div id = "info"></div>
+		<div id="progress-bar">
+			<div id="progress-component"></div>
+			<div id="elapsed"></div>
+		</div>
 
-</script>	
+		<div id = "options"></div>	
+	</body>
+	<script type ="text/javascript">
+		playerStatus = {
+			"playState":0, //0 = stopped, 1 = paused, 2 = playing
+			"elapsed":0,	//How long the tracks been playing
+			"started":0,	//when the track began playing (unix timestamp)
+			"url":"",	//url of the MP3 being played
+			"track":{		
+				"artist":"",
+				"title":"",
+				"duration":0
+			}
+		};
+
+		/**
+		 * runs whenever popup is opened, fetches player status data from background page
+		 */
+		function init(){
+			chrome.extension.sendRequest({type: "status"}, function(status) {
+					playerStatus = JSON.parse(status);
+					generate();
+			});
+
+		}
+
+		
+		function generate(){
+			if(playerStatus.url == ""){
+				document.getElementById('info').innerHTML = 
+				"This extension will keep a record of songs you stream and add them to your last.fm profile";
+			} else {
+				document.getElementById('info').innerHTML = 
+				'Now Playing - '+playerStatus.track.artist+': "'+playerStatus.track.title+'"';
+				document.getElementById('elapsed').innerHTML = playerStatus.elapsed;
+			}
+		}
+	</script>	
 </html>
