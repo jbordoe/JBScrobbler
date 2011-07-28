@@ -12,7 +12,7 @@ eventDiv.id = 'scrobblerEventDiv';
 document.body.appendChild(eventDiv);
 
 var scriptArr = document.getElementsByTagName('script');
-for (tag in document.getElementsByTagName('script')) {
+for (var tag in document.getElementsByTagName('script')) {
 	// check if YMP is being used, if so, inject the listener code 
 	if (scriptArr[tag].src == "http://mediaplayer.yahoo.com/js") {
 		var script = document.createElement('script');

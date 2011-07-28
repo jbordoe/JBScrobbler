@@ -60,7 +60,7 @@ YMPListener.prototype.getPlayerStatus = function(){
 	currentStatus.playState = this.getPlayState();
 	currentStatus.elapsed = this.playerStatus.elapsed;
 	currentStatus.url = this.getURL();
-	currentStatus.started = new Date().getTime();
+	currentStatus.started = Math.round(new Date().getTime() / 1000); //unix timestamp
 	currentStatus.track = this.getTrackInfo();
 	return currentStatus;
 }

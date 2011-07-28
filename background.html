@@ -1,4 +1,5 @@
 <html>
+	<script type="text/javascript" src="javascript/MD5.js"></script>
 	<script type="text/javascript" src="javascript/scrobbler.js"></script>
 	<script>
 		/** how frequently the player status is checked, in milliseconds */
@@ -40,7 +41,8 @@
 			*/
 		function update(status) {
 			if (playerStatus.url != status.url) { //change of track
-				notify('Now playing',status.track.artist+' "'+status.track.title+'"',5000);
+				playerStatus = status; //update player status;
+				updateNowPlaying();			
 			} 
 			playerStatus = status; //update player status;
 		}
@@ -54,16 +56,10 @@
 				if (!scrobbled) {
 					if (playerStatus.elapsed > playerStatus.track.scrobbleTime) {
 							scrobble();
+							scrobbled = true;
 					}
 				}
 			}
-		}
-
-		function scrobble() {
-			scrobbled = true;
-			authorize();
-			//TODO scrobbling!
-			notify('Scrobbled!','Scrobbled track: '+playerStatus.track.artist+' "'+playerStatus.track.title+'"',5000);
 		}
 
 		/**
