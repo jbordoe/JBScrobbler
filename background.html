@@ -1,5 +1,5 @@
 <html>
-	<script type="text/javascript" src="javascript/player-handler.js"></script>
+	<script type="text/javascript" src="javascript/scrobbler.js"></script>
 	<script>
 		/** how frequently the player status is checked, in milliseconds */
 		var interval = 500; 
@@ -27,7 +27,7 @@
 
 		//listen for requests from popup
 		chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
-      if(request.type == "status") {
+      if (request.type == "status") {
           sendResponse(JSON.stringify(playerStatus));
       }
     });
@@ -39,7 +39,7 @@
 			* update player status 
 			*/
 		function update(status) {
-			if(playerStatus.url != status.url){ //change of track
+			if (playerStatus.url != status.url) { //change of track
 				notify('Now playing',status.track.artist+' "'+status.track.title+'"',5000);
 			} 
 			playerStatus = status; //update player status;
@@ -49,11 +49,10 @@
 		 * update and check how long the current track has been playing for, scrobbling if ready
 		 */
 		function checkTrack() {
-			if(playerStatus.playState == 2) {
+			if (playerStatus.playState == 2) {
 				playerStatus.elapsed = playerStatus.elapsed + interval;
-				if(!scrobbled) {
-					if(playerStatus.elapsed > 240000 
-						|| (playerStatus.track.duration > 30000 && playerStatus.elapsed > playerStatus.track.duration/2)) {
+				if (!scrobbled) {
+					if (playerStatus.elapsed > playerStatus.track.scrobbleTime) {
 							scrobble();
 					}
 				}
@@ -62,13 +61,17 @@
 
 		function scrobble() {
 			scrobbled = true;
+			authorize();
 			//TODO scrobbling!
 			notify('Scrobbled!','Scrobbled track: '+playerStatus.track.artist+' "'+playerStatus.track.title+'"',5000);
 		}
 
+		/**
+		 * shorthand for chrome notification methods
+		 */
     function notify(title, message, timeout) {
        var not = webkitNotifications.createNotification(
-         'icon.png', title, message);
+         'img/ico.gif', title, message);
          not.show();
          setTimeout(function(){
            not.cancel();

@@ -66,19 +66,35 @@ YMPListener.prototype.getPlayerStatus = function(){
 }
 
 YMPListener.prototype.getElapsed = function() {
-	return YAHOO.mediaplayer.Controller.mediaengine.getElapsed();
+	try {
+		return YAHOO.mediaplayer.Controller.mediaengine.getElapsed();
+	} catch(err) {
+		return 0;
+	}
 }
 
 YMPListener.prototype.getDuration = function() {
-	return YAHOO.mediaplayer.Controller.mediaengine.getDuration();
+	try {
+		return YAHOO.mediaplayer.Controller.mediaengine.getDuration();
+	} catch(err) {
+		return 0;
+	}
 }
 
 YMPListener.prototype.getURL = function() {
-	return YAHOO.mediaplayer.Controller.mediaengine.currentEngine.currentMedia.url;
+	try {
+		return YAHOO.mediaplayer.Controller.mediaengine.currentEngine.currentMedia.url;
+	} catch(err) {
+		return "";
+	}
 }
 
 YMPListener.prototype.getPlayState = function() {
-	return YAHOO.mediaplayer.Controller.mediaengine.currentPlayState;
+	try {
+		return YAHOO.mediaplayer.Controller.mediaengine.currentPlayState;
+	} catch(err) {
+		return 0;
+	}
 }
 
 YMPListener.prototype.update = function() {
@@ -131,8 +147,6 @@ YMPListener.prototype.checkStatus = function() {
 //main
 /** how frequently the player status is checked, in milliseconds */
 var interval = 500; 
-
-
 if(!ympListener){
 	var ympListener = new YMPListener();
 	ympListener.init();
