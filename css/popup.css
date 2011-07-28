@@ -35,4 +35,5 @@ body {
 	z-index: 10;
 	margin-bottom: auto ;
 	margin-top: auto ;
+	position: absolute;
 }

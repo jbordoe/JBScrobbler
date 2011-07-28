@@ -36,10 +36,16 @@
 			if(playerStatus.playState == 2) {
 				playerStatus.elapsed = playerStatus.elapsed + 500;
 				var remaining = scrobbleTime - playerStatus.elapsed;
-				document.getElementById('elapsed').innerHTML = toMinutes(remaining);
-				document.getElementById('progress_component').style.width = 148*((scrobbleTime-remaining)/scrobbleTime);
+				if(remaining < 0){
+					document.getElementById('elapsed').innerHTML = 'scrobbling...';
+					document.getElementById('progress_component').style.width = 148;
+				} else {				
+					document.getElementById('elapsed').innerHTML = '-'+toMinutes(remaining);
+					document.getElementById('progress_component').style.width = 148*((scrobbleTime-remaining)/scrobbleTime);
+				}
 			}
 		}
+		
 		/**
 		 * runs whenever popup is opened, fetches player status data from background page
 		 */
@@ -54,11 +60,7 @@
 					}
 					generate();
 			});
-
 		}
-
-
-
 
 		function generate(){
 			if(playerStatus.url == ""){
@@ -68,8 +70,14 @@
 				document.getElementById('info').innerHTML = 
 				'Now Playing - '+playerStatus.track.artist+': "'+playerStatus.track.title+'"';
 				var remaining = scrobbleTime - playerStatus.elapsed;
-				document.getElementById('elapsed').innerHTML = toMinutes(remaining);
-				document.getElementById('progress_component').style.width = 148*((scrobbleTime-remaining)/scrobbleTime);
+				
+				if(remaining < 0){
+					document.getElementById('elapsed').innerHTML = 'scrobbling...';
+					document.getElementById('progress_component').style.width = 148;
+				} else {				
+					document.getElementById('elapsed').innerHTML = '-'+toMinutes(remaining);
+					document.getElementById('progress_component').style.width = 148*((scrobbleTime-remaining)/scrobbleTime);
+				}
 			}
 		}
 

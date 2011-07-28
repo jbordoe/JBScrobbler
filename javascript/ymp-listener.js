@@ -1,4 +1,8 @@
 /**
+ * @author jesse.bordoe@google.com (Jesse Bordoe)
+ */
+
+/**
  * @constructor
  */
  YMPListener = function(){
@@ -10,7 +14,8 @@
 		"track":{		
 			"artist":"",
 			"title":"",
-			"duration":0
+			"duration":0,
+			"scrobbleTime":240000 //default time to scrobble is 4 minutes
 		} 	
 	}
 	this.scrobbled = false;
@@ -21,6 +26,10 @@ YMPListener.prototype.init = function(){
 	this.changeEvent.initEvent('changeEvent', true, true);
 };
 
+/**
+ * updates event div with data so content script can read it and pass it to background page
+ * @param data the data to send
+ */
 YMPListener.prototype.fireCustomEvent = function(data) {
   eventDiv = document.getElementById('scrobblerEventDiv');
   eventDiv.innerText = JSON.stringify(data);
@@ -41,7 +50,8 @@ YMPListener.prototype.getTrackInfo = function() {
 	return {
 		"artist":artist,
 		"title":track,
-		"duration":duration		
+		"duration":duration,
+		"scrobbleTime":240000 //default time to scrobble is 4 minutes		
 	};
 }
 
@@ -80,30 +90,41 @@ YMPListener.prototype.updateTrack = function() {
 }
 
 /**
- * listens for key changes in player status (change in track, playstatus, elpased time etc...)
+ * listens for and updates key changes in player status (change in track, playstatus, elpased time etc...)
  */
 YMPListener.prototype.checkStatus = function() {
+	/** flag whether we need to send updated status to background page */
+	var updated = false; 
 	if(!this.scrobbled){
 		if(this.playerStatus.playState == 2){ //currently playing, increment elapsed playtime
 			this.playerStatus.elapsed = this.playerStatus.elapsed + interval;
-			if(this.playerStatus.track.duration < 1){
-				this.playerStatus.track.duration = this.getDuration();
-			}
-
 		}		
-		//scrobble when we're halfway thru track or 4 minutes into it, whichever comes sooner
-		if(this.playerStatus.track.duration > 30000 && (this.playerStatus.elapsed > this.playerStatus.track.duration/2 || this.playerStatus.elapsed > 240000)){
+		//duration wil be < 1ms until track is fully loaded, so keep checking until this occurs, then update duration
+		if(this.playerStatus.track.duration < 1 && this.getDuration() > 30000){ //ignore tracks below 30s, these aren't scrobbled
+			this.playerStatus.track.duration = this.getDuration();
+			//once we have duration, set scrobble point to half that time or keep at 4 minutes, whichever is shorter
+			if(this.playerStatus.track.duration < 480000 ){
+				this.playerStatus.track.scrobbleTime = this.playerStatus.track.duration/2;
+			}
+			updated = true;
+		}
+		//send data to background when we reach the alotted scrobble time
+		if(this.playerStatus.elapsed > this.playerStatus.scrobbleTime){
 			this.scrobbled = true;
-			this.fireCustomEvent(this.playerStatus);
-		}	else if (this.playerStatus.url != this.getURL()) {
+			updated = true;
+		}	else if (this.playerStatus.url != this.getURL()) { //change in track being played - reset status
 			this.scrobbled = false;
 			this.update();
 			this.playerStatus.elapsed = 0;
-			this.fireCustomEvent(this.playerStatus);
-		} else if (this.playerStatus.playState != this.getPlayState()) {
+			updated = true;
+		} else if (this.playerStatus.playState != this.getPlayState()) { //update playstate
 			this.playerStatus.playState = this.getPlayState();
-			this.fireCustomEvent(this.playerStatus);
+			updated = true;
 		}	
+		// send data to background page if changes have been made to player status
+		if(updated){
+			this.fireCustomEvent(this.playerStatus);
+		}
 	}
 }
 

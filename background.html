@@ -12,20 +12,10 @@
 			"track":{		
 				"artist":"",
 				"title":"",
-				"duration":0
+				"duration":0,
+				"scrobbleTime":240000 //default time to scrobble is 4 minutes
 			}
 		}; 	
-
-		chrome.tabs.onUpdated.addListener(function(tabId,changeInfo,tab) {
-			//inject the yahoo media player listener into the page
-			var code = "var script = document.createElement('script');\
-								script.type = 'text/javascript';\
-								script.src = '"+chrome.extension.getURL('/javascript/ymp-listener.js')+"';\
-								document.head.appendChild(script);";
-			chrome.tabs.executeScript(tabId, { code: code,
-				allFrames: false 
-			});
-		});
 
 		//listen for updates in the player's status
 		chrome.extension.onConnect.addListener(function(port) {
