@@ -32,6 +32,7 @@ YMPListener.prototype.init = function(){
  */
 YMPListener.prototype.fireCustomEvent = function(data) {
   eventDiv = document.getElementById('scrobblerEventDiv');
+  eventDiv.style = ('display: none;');
   eventDiv.innerText = JSON.stringify(data);
   eventDiv.dispatchEvent(this.changeEvent);
 }

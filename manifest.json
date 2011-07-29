@@ -4,7 +4,7 @@
   "description": "Scrobble from streaming music sources!",
   "background_page": "background.html",
     "browser_action": {
-    "default_icon": "img/ico.gif",
+    "default_icon": "img/icon-1.png",
     "popup": "popup.html"
   },
   "content_scripts": [

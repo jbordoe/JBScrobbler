@@ -15,7 +15,8 @@
 				"title":"",
 				"duration":0,
 				"scrobbleTime":240000 //default time to scrobble is 4 minutes
-			}
+			},
+			"scrobbled":false
 		}; 	
 
 		//listen for updates in the player's status
@@ -41,6 +42,7 @@
 			*/
 		function update(status) {
 			if (playerStatus.url != status.url) { //change of track
+				scrobbled = false;
 				playerStatus = status; //update player status;
 				updateNowPlaying();			
 			} 
@@ -67,7 +69,7 @@
 		 */
     function notify(title, message, timeout) {
        var not = webkitNotifications.createNotification(
-         'img/ico.gif', title, message);
+         'img/icon-1.png', title, message);
          not.show();
          setTimeout(function(){
            not.cancel();
