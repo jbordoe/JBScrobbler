@@ -110,6 +110,8 @@ YMPListener.prototype.extractTrackDetails = function(string) {
 	var arr = new Array();
 	if (string.match(/.*?:\s*"[^"]+/)) {
 		arr =  string.split(':',2);
+		arr[1] = arr[1].replace(/"([^2]+)"/,'$1');
+		alert(arr[1]);
 	} else if (string.match(/.*::.*/)) {
 		arr = string.split('::',2); 
 	}
