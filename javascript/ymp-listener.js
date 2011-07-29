@@ -42,9 +42,10 @@ YMPListener.prototype.getTrackInfo = function() {
 	var track;
 	var duration = this.getDuration();
 	if (!artist) {
-		var arr = document.getElementById('ymp-meta-track-title').innerHTML.split(":",2);
+		var str = document.getElementById('ymp-meta-track-title').innerHTML;
+		var arr = this.extractTrackDetails(str);
 		artist = arr[0];
-		track = arr[1].replace('"','').replace(/"$/,'');		
+		track = arr[1];
 	} else {
 		track = document.getElementById('ymp-meta-track-title').innerHTML;
 	}
@@ -102,6 +103,23 @@ YMPListener.prototype.update = function() {
 	this.playerStatus = this.getPlayerStatus();
 }
 
+/**
+ * given a track title and artist in one string, try and extract them using common patterns
+ */
+YMPListener.prototype.extractTrackDetails = function(string) {
+	var arr = new Array();
+	if (string.match(/.*?:\s*"[^"]+/)) {
+		arr =  string.split(':',2);
+	} else if (string.match(/.*::.*/)) {
+		arr = string.split('::',2); 
+	}
+	if (arr.length == 2) {
+		arr[0] = trim(arr[0]);
+		arr[1] = trim(arr[1]);
+	}
+	return arr;
+}
+
 YMPListener.prototype.updateTrack = function() {
 	this.playerStatus.track = this.getTrackInfo();
 }
@@ -155,3 +173,7 @@ if(!ympListener){
 		ympListener.checkStatus(); //listen for key changes in player status
 },interval);
 }	
+
+function trim(str){
+	return str.replace(/^\s+|\s+$/g, '');
+}
